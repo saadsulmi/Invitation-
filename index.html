@@ -205,7 +205,7 @@
   .hero-eyebrow {
     font-family: 'Jost', sans-serif;
     font-weight: 200;
-    font-size: clamp(0.6rem, 1.5vw, 0.8rem);
+    font-size: clamp(0.5rem, 1.3vw, 0.8rem);
     letter-spacing: 0.55em;
     color: var(--gold);
     text-transform: uppercase;
@@ -538,7 +538,8 @@
   .closing-eyebrow {
     font-family: 'Jost', sans-serif; font-weight: 200;
     font-size: 0.68rem; letter-spacing: 0.5em; text-transform: uppercase;
-    color: var(--rose); margin-bottom: 2rem;
+    color: var(--text); 
+    margin-bottom: 2rem;
   }
   .closing-quote {
     font-family: 'Cormorant Garamond', serif;
@@ -594,7 +595,7 @@
     position: fixed; bottom: 24px; right: 24px;
     z-index: 5000; display: none; align-items: center; gap: 10px;
     padding: 10px 18px;
-    background: rgba(26,16,8,0.9); border: 1px solid rgba(201,169,110,0.3);
+    background: rgba(26,16,8,0.1); border: 1px solid rgba(201,169,110,0.3);
     border-radius: 30px; cursor: pointer; backdrop-filter: blur(8px);
   }
   #music-indicator .bars { display:flex; gap:3px; align-items:flex-end; height:18px; }
@@ -714,40 +715,23 @@
     <div class="photos-inner">
       <div class="divider reveal"><span>❧</span></div>
       <div class="photos-title reveal reveal-delay-1">Our Story</div>
-      <div class="photos-sub reveal reveal-delay-2">Click each frame to add your photo</div>
+      <!-- <div class="photos-sub reveal reveal-delay-2">Click each frame to add your photo</div> -->
       <div class="photos-grid reveal reveal-delay-3">
+        
         <div class="photo-card" id="pc1">
-          <div class="photo-placeholder">
-            <span class="ph-icon">♥</span>
-            <span class="ph-text">Our Favourite Moment</span>
-            <span class="ph-sub">Click to add photo</span>
-          </div>
           <div class="photo-corner tl"></div><div class="photo-corner tr"></div>
           <div class="photo-corner bl"></div><div class="photo-corner br"></div>
-          <img id="img1" alt="Photo 1">
-          <input type="file" accept="image/*" onchange="loadPhoto(this,'img1','pc1')">
+          <img id="img2" alt="Photo 1" src="1000254982.png" class="loaded">
         </div>
         <div class="photo-card" id="pc2">
-          <div class="photo-placeholder">
-            <span class="ph-icon">❧</span>
-            <span class="ph-text">Together</span>
-            <span class="ph-sub">Click to add photo</span>
-          </div>
           <div class="photo-corner tl"></div><div class="photo-corner tr"></div>
           <div class="photo-corner bl"></div><div class="photo-corner br"></div>
-          <img id="img2" alt="Photo 2">
-          <input type="file" accept="image/*" onchange="loadPhoto(this,'img2','pc2')">
+          <img id="img2" alt="Photo 2" src="1000254980.png" class="loaded">
         </div>
         <div class="photo-card" id="pc3">
-          <div class="photo-placeholder">
-            <span class="ph-icon">✦</span>
-            <span class="ph-text">Our Journey</span>
-            <span class="ph-sub">Click to add photo</span>
-          </div>
           <div class="photo-corner tl"></div><div class="photo-corner tr"></div>
           <div class="photo-corner bl"></div><div class="photo-corner br"></div>
-          <img id="img3" alt="Photo 3">
-          <input type="file" accept="image/*" onchange="loadPhoto(this,'img3','pc3')">
+          <img id="img2" alt="Photo 3" src="1000254991.png" class="loaded">
         </div>
       </div>
     </div>
@@ -846,16 +830,16 @@
     <div class="closing-inner">
       <div class="closing-eyebrow reveal">With love &amp; gratitude</div>
       <p class="closing-quote reveal reveal-delay-1">
-        "Two hearts that have found each other across time and chance —
-        today they choose each other, forever."
+        "Two hearts that have found each other <br> across time and chance 
+        <br>today they choose each other, forever."
       </p>
       <div class="divider reveal reveal-delay-2"><span>♥</span></div>
       <div class="closing-names reveal reveal-delay-2">Saad & Jasna</div>
-      <div class="closing-footer reveal reveal-delay-3">23 · 05 · 2026 &nbsp;·&nbsp; Kollam, Kerala</div>
+      <div class="closing-footer reveal reveal-delay-3">23 · MAY · 2026</div>
     </div>
   </section>
 
-  <footer>✦ &nbsp; Saad &amp; Jasna Wedding &nbsp; · &nbsp; 23 · 05 · 2026 &nbsp; · &nbsp; Kollam &nbsp; ✦</footer>
+  <footer>✦ inviting you to our Wedding ✦ <br> ✦ Saad &amp; Jasna ✦</footer>
 </div>
 
 <script>
