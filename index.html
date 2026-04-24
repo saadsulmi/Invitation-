@@ -861,29 +861,41 @@
 <script>
 // ══════════ AUDIO ══════════
 let audioCtx=null,musicPlaying=false,scheduledNodes=[],musicStarted=false;
-function createRomanticMelody(){
-  if(audioCtx){audioCtx.close();}
-  audioCtx=new(window.AudioContext||window.webkitAudioContext)();
-  const master=audioCtx.createGain();master.gain.setValueAtTime(0.18,audioCtx.currentTime);master.connect(audioCtx.destination);
-  const reverb=audioCtx.createConvolver();
-  const revLen=audioCtx.sampleRate*3;const revBuf=audioCtx.createBuffer(2,revLen,audioCtx.sampleRate);
-  for(let c=0;c<2;c++){const d=revBuf.getChannelData(c);for(let i=0;i<revLen;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/revLen,2);}
-  reverb.buffer=revBuf;const revGain=audioCtx.createGain();revGain.gain.value=0.4;reverb.connect(revGain);revGain.connect(master);
-  const melody=[[440,.5],[392,.5],[349,.5],[440,.25],[392,.75],[523,.5],[494,.5],[440,.5],[392,1],[349,.5],[392,.5],[440,.5],[494,.25],[523,.75],[587,.5],[523,.5],[494,.5],[440,1.5],[392,.5],[440,.5],[494,.5],[523,.25],[494,.75],[440,.5],[392,.5],[349,.5],[392,1],[261,.5],[294,.5],[330,.5],[349,.25],[330,.75],[294,.5],[261,.5],[220,1.5]];
-  const chords=[[220,261,329],[196,246,311],[174,220,261],[196,246,311],[220,261,329],[196,246,311],[174,220,261],[174,220,261]];
-  const tempo=0.55;let loopDuration=melody.reduce((s,[,d])=>s+d,0)*tempo;
-  function scheduleLoop(startTime){
-    let t=startTime;
-    melody.forEach(([freq,dur])=>{const o=audioCtx.createOscillator();const g=audioCtx.createGain();o.type='sine';o.frequency.setValueAtTime(freq,t);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(0.45,t+0.04);g.gain.exponentialRampToValueAtTime(0.001,t+dur*tempo-0.02);o.connect(g);g.connect(master);g.connect(reverb);o.start(t);o.stop(t+dur*tempo);scheduledNodes.push(o);t+=dur*tempo;});
-    let bt=startTime;const chordDur=loopDuration/chords.length;
-    chords.forEach(chord=>{chord.forEach((freq,i)=>{const o=audioCtx.createOscillator();const g=audioCtx.createGain();o.type='triangle';o.frequency.setValueAtTime(freq,bt+i*0.08);g.gain.setValueAtTime(0,bt+i*0.08);g.gain.linearRampToValueAtTime(0.12,bt+i*0.08+0.06);g.gain.exponentialRampToValueAtTime(0.001,bt+chordDur-0.05);o.connect(g);g.connect(master);g.connect(reverb);o.start(bt+i*0.08);o.stop(bt+chordDur);scheduledNodes.push(o);});bt+=chordDur;});
-    return startTime+loopDuration;
-  }
-  let nextLoop=audioCtx.currentTime+0.1;scheduleLoop(nextLoop);nextLoop+=loopDuration;scheduleLoop(nextLoop);nextLoop+=loopDuration;
-  const loopInterval=setInterval(()=>{if(!musicPlaying){clearInterval(loopInterval);return;}scheduleLoop(nextLoop);nextLoop+=loopDuration;},(loopDuration-1)*1000);
+
+
+function startMusic() {
+  if (musicStarted) return;
+  musicStarted = true;
+
+  musicAudio = new Audio('music.mp3');  // ← put your file name/path here
+  musicAudio.loop = true;
+  musicAudio.volume = 0.5;
+  musicAudio.play().then(() => {
+    musicPlaying = true;
+    const ind = document.getElementById('music-indicator');
+    ind.style.display = 'flex';
+    document.getElementById('music-label').textContent = '';
+    ind.classList.remove('paused');
+  }).catch(() => {
+    // autoplay blocked — user will need to tap the music button
+  });
 }
-function startMusic(){if(musicStarted)return;musicStarted=true;musicPlaying=true;createRomanticMelody();const ind=document.getElementById('music-indicator');ind.style.display='flex';document.getElementById('music-label').textContent='Pause';ind.classList.remove('paused');}
-function toggleMusic(){const ind=document.getElementById('music-indicator');if(!audioCtx)return;if(musicPlaying){audioCtx.suspend();musicPlaying=false;ind.classList.add('paused');document.getElementById('music-label').textContent='Play';}else{audioCtx.resume();musicPlaying=true;ind.classList.remove('paused');document.getElementById('music-label').textContent='Pause';}}
+
+function toggleMusic() {
+  if (!musicAudio) return;
+  const ind = document.getElementById('music-indicator');
+  if (musicPlaying) {
+    musicAudio.pause();
+    musicPlaying = false;
+    ind.classList.add('paused');
+    document.getElementById('music-label').textContent = '';
+  } else {
+    musicAudio.play();
+    musicPlaying = true;
+    ind.classList.remove('paused');
+    document.getElementById('music-label').textContent = '';
+  }
+}
 
 // ══════════ OPEN ══════════
 function openInvitation(){
