@@ -935,8 +935,8 @@ function openInvitation() {
     cover.style.display = 'none';
     inv.style.display = 'block';
     // Start auto-scroll automatically after invitation opens
-    // Small delay so layout settles first
-    setTimeout(startAutoScroll, 800);
+    // 3 second delay so the guest can take in the first panel
+    setTimeout(startAutoScroll, 5000);
   }, 1200);
   startMusic();
   startConfetti();
