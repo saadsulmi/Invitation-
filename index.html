@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Saad & Jasna — Wedding Invitation</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Great+Vibes&family=Jost:wght@200;300;400&display=swap" rel="stylesheet">
@@ -19,7 +19,6 @@
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
-
   html { scroll-behavior: smooth; }
 
   body {
@@ -53,6 +52,8 @@
     overflow: hidden;
     background: radial-gradient(ellipse at 50% 60%, #2e1a0e 0%, #110a04 60%, #070401 100%);
     transition: opacity 1.2s ease, transform 1.2s ease;
+    /* safe area for notched phones */
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   }
   #cover.hidden { opacity: 0; pointer-events: none; transform: scale(1.06); }
 
@@ -64,18 +65,18 @@
   }
   .cover-ornament {
     position: absolute;
-    width: 500px; height: 500px;
+    width: min(500px, 90vw); height: min(500px, 90vw);
     border-radius: 50%;
     border: 1px solid rgba(201,169,110,0.15);
     animation: pulse-ring 4s ease-in-out infinite;
   }
-  .cover-ornament:nth-child(2) { width: 380px; height: 380px; animation-delay: .6s; border-color: rgba(201,169,110,0.2); }
-  .cover-ornament:nth-child(3) { width: 260px; height: 260px; animation-delay: 1.2s; border-color: rgba(201,169,110,0.3); }
+  .cover-ornament:nth-child(2) { width: min(380px, 70vw); height: min(380px, 70vw); animation-delay: .6s; border-color: rgba(201,169,110,0.2); }
+  .cover-ornament:nth-child(3) { width: min(260px, 50vw); height: min(260px, 50vw); animation-delay: 1.2s; border-color: rgba(201,169,110,0.3); }
   @keyframes pulse-ring { 0%,100%{transform:scale(1);opacity:.6} 50%{transform:scale(1.04);opacity:1} }
 
   .cover-title {
     font-family: 'Great Vibes', cursive;
-    font-size: clamp(3.5rem, 10vw, 7rem);
+    font-size: clamp(3.2rem, 14vw, 7rem);
     color: var(--gold-light);
     text-shadow: 0 0 60px rgba(201,169,110,0.5), 0 2px 20px rgba(0,0,0,0.5);
     position: relative; z-index: 2;
@@ -85,37 +86,37 @@
   .cover-sub {
     font-family: 'Jost', sans-serif;
     font-weight: 200;
-    font-size: clamp(0.65rem, 2vw, 0.9rem);
-    letter-spacing: 0.5em;
+    font-size: clamp(0.58rem, 2.5vw, 0.9rem);
+    letter-spacing: 0.45em;
     color: var(--gold);
     text-transform: uppercase;
-    margin-top: 1.2rem;
+    margin-top: 0.9rem;
     position: relative; z-index: 2;
     animation: fade-up 2s 0.5s ease both;
   }
   .cover-hearts {
     position: relative; z-index: 2;
-    margin-top: 2.5rem;
+    margin-top: 2rem;
     display: flex; gap: 1rem;
     animation: fade-up 2s 1s ease both;
   }
-  .cover-heart { font-size: 1.4rem; color: var(--rose); animation: heartbeat 1.8s ease-in-out infinite; }
+  .cover-heart { font-size: 1.3rem; color: var(--rose); animation: heartbeat 1.8s ease-in-out infinite; }
   .cover-heart:nth-child(2) { animation-delay: .3s; color: var(--gold); }
   .cover-heart:nth-child(3) { animation-delay: .6s; color: var(--rose); }
   @keyframes heartbeat { 0%,100%{transform:scale(1)} 50%{transform:scale(1.25)} }
   .cover-tap {
     position: relative; z-index: 2;
-    margin-top: 3rem;
+    margin-top: 2.5rem;
     font-family: 'Jost', sans-serif;
     font-weight: 200;
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     letter-spacing: 0.35em;
     color: rgba(201,169,110,0.6);
     text-transform: uppercase;
     animation: fade-up 2s 1.5s ease both, flicker 3s 3s ease-in-out infinite;
   }
   .cover-frame {
-    position: absolute; inset: 20px;
+    position: absolute; inset: 16px;
     border: 1px solid rgba(201,169,110,0.2);
     pointer-events: none;
   }
@@ -131,70 +132,85 @@
   @keyframes fade-up { from{opacity:0;transform:translateY(15px)} to{opacity:1;transform:none} }
 
   /* ─── INVITATION WRAPPER ─── */
-  #invitation {
-    display: none;
-  }
+  #invitation { display: none; }
 
-  /* ─── FULL-HEIGHT PANELS ─── */
+  /* ─── PANELS ─── */
+  /* 
+     KEY FIX: Panels are flex columns. Content takes up natural space.
+     The scroll-cue is no longer position:absolute — it sits in normal flow
+     at the bottom via margin-top:auto. This guarantees it's always visible.
+  */
   .panel {
-    min-height: 100vh;
+    min-height: 100svh; /* svh = small viewport height — respects mobile browser chrome */
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     position: relative;
     overflow: hidden;
+    padding-top: clamp(36px, 8vw, 64px);
+    padding-bottom: 0; /* scroll-cue provides bottom spacing */
   }
 
-  /* scroll-down chevron */
+  /* ─── SCROLL CUE — now in normal flow ─── */
   .scroll-cue {
-    position: absolute;
-    bottom: 2rem;
-    left: 50%;
-    transform: translateX(-50%);
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 6px;
-    opacity: 0.5;
+    gap: 5px;
+    padding: clamp(16px, 4vw, 28px) 0 clamp(20px, 5vw, 32px);
+    margin-top: auto; /* pushes to bottom of flex column */
+    opacity: 0.55;
     animation: bob 2.4s ease-in-out infinite;
-    z-index: 10;
+    flex-shrink: 0;
   }
   .scroll-cue span {
     font-family: 'Jost', sans-serif;
     font-weight: 200;
-    font-size: 0.6rem;
+    font-size: 0.58rem;
     letter-spacing: 0.4em;
     text-transform: uppercase;
     color: var(--gold);
   }
-  .scroll-cue svg { width: 18px; height: 18px; fill: none; stroke: var(--gold); stroke-width: 1.5; }
-  @keyframes bob { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(6px)} }
+  .scroll-cue svg { width: 16px; height: 16px; fill: none; stroke: var(--gold); stroke-width: 1.5; }
+  @keyframes bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(5px)} }
 
-  /* corner ornaments for panels */
+  /* corner ornaments */
   .panel-corners::before,
   .panel-corners::after,
   .panel-corner-bl,
   .panel-corner-br {
     content: '';
     position: absolute;
-    width: 36px; height: 36px;
+    width: 28px; height: 28px;
     border-color: rgba(201,169,110,0.3);
     border-style: solid;
     border-width: 0;
     pointer-events: none;
     z-index: 2;
   }
-  .panel-corners::before { top: 28px; left: 28px; border-top-width: 1px; border-left-width: 1px; }
-  .panel-corners::after  { top: 28px; right: 28px; border-top-width: 1px; border-right-width: 1px; }
-  .panel-corner-bl { bottom: 28px; left: 28px; border-bottom-width: 1px; border-left-width: 1px; position: absolute; width: 36px; height: 36px; border-color: rgba(201,169,110,0.3); border-style: solid; border-width: 0; border-bottom-width: 1px; border-left-width: 1px; z-index: 2; }
-  .panel-corner-br { bottom: 28px; right: 28px; border-bottom-width: 1px; border-right-width: 1px; position: absolute; width: 36px; height: 36px; border-color: rgba(201,169,110,0.3); border-style: solid; border-width: 0; border-bottom-width: 1px; border-right-width: 1px; z-index: 2; }
+  .panel-corners::before { top: 20px; left: 20px; border-top-width: 1px; border-left-width: 1px; }
+  .panel-corners::after  { top: 20px; right: 20px; border-top-width: 1px; border-right-width: 1px; }
+  .panel-corner-bl { bottom: 20px; left: 20px; border-bottom-width: 1px; border-left-width: 1px; position: absolute; width: 28px; height: 28px; border-color: rgba(201,169,110,0.3); border-style: solid; border-width: 0; border-bottom-width: 1px; border-left-width: 1px; z-index: 2; }
+  .panel-corner-br { bottom: 20px; right: 20px; border-bottom-width: 1px; border-right-width: 1px; position: absolute; width: 28px; height: 28px; border-color: rgba(201,169,110,0.3); border-style: solid; border-width: 0; border-bottom-width: 1px; border-right-width: 1px; z-index: 2; }
+
+  /* ─── PANEL CONTENT WRAPPERS ─── */
+  /* Each panel has a centered content block that grows naturally */
+  .panel-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 0 clamp(20px, 6vw, 48px);
+  }
 
   /* ─── PANEL 1: HERO ─── */
   .panel-hero {
     background: radial-gradient(ellipse at 50% 40%, #2e1a0e 0%, #1a1008 55%, #0d0704 100%);
     text-align: center;
-    padding: 40px 30px;
   }
   .panel-hero::before {
     content: '';
@@ -205,26 +221,25 @@
   .hero-eyebrow {
     font-family: 'Jost', sans-serif;
     font-weight: 200;
-    font-size: clamp(0.5rem, 1.3vw, 0.8rem);
-    letter-spacing: 0.55em;
+    font-size: clamp(0.5rem, 2.2vw, 0.8rem);
+    letter-spacing: 0.5em;
     color: var(--gold);
     text-transform: uppercase;
     position: relative; z-index: 2;
-    margin-bottom: 1rem;
+    margin-bottom: 0.8rem;
   }
   .hero-names {
     font-family: 'Great Vibes', cursive;
-    font-size: clamp(4.5rem, 15vw, 8rem);
-    margin-top: 30px;
-    margin-bottom: 30px;
+    font-size: clamp(4rem, 18vw, 8rem);
     color: var(--cream);
     line-height: 0.9;
     text-shadow: 0 0 100px rgba(201,169,110,0.35);
     position: relative; z-index: 2;
+    margin: 0.4rem 0;
   }
   .hero-amp {
     font-family: 'Great Vibes', cursive;
-    font-size: clamp(2rem, 6vw, 4.5rem);
+    font-size: clamp(1.8rem, 8vw, 4.5rem);
     color: var(--gold);
     display: block;
     line-height: 1.4;
@@ -232,19 +247,16 @@
   .hero-tagline {
     font-family: 'Cormorant Garamond', serif;
     font-style: italic;
-    /* margin-top: 100px; */
-    font-size: clamp(1rem, 2.5vw, 1.4rem);
+    font-size: clamp(0.9rem, 3vw, 1.4rem);
     color: var(--gold-light);
-    margin-top: 2rem;
+    margin-top: 1.4rem;
     letter-spacing: 0.06em;
     position: relative; z-index: 2;
   }
   .hero-ornament {
     position: relative; z-index: 2;
-    margin-top: 2.5rem;
-    margin-bottom: -1rem;
+    margin-top: 1.8rem;
   }
-  /* subtle parchment texture overlay */
   .panel-hero-texture {
     position: absolute; inset: 0;
     background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
@@ -254,7 +266,6 @@
   /* ─── PANEL 2: MESSAGE ─── */
   .panel-message {
     background: var(--cream);
-    padding: 40px 15px;
     text-align: center;
   }
   .panel-message-texture {
@@ -271,7 +282,7 @@
     background: white;
     border: 1px solid rgba(201,169,110,0.3);
     border-radius: 2px;
-    padding: clamp(32px, 5vw, 60px) clamp(24px, 5vw, 60px);
+    padding: clamp(28px, 6vw, 60px) clamp(20px, 6vw, 60px);
     position: relative;
     box-shadow: 0 8px 60px rgba(0,0,0,0.07);
   }
@@ -289,25 +300,26 @@
     pointer-events: none;
   }
   .message-text {
-    font-size: clamp(1rem, 2.2vw, 1.2rem);
-    line-height: 2.1;
+    font-size: clamp(0.95rem, 2.8vw, 1.2rem);
+    line-height: 2;
     color: var(--text);
     font-style: italic;
     font-weight: 300;
   }
   .message-sign {
-    margin-top: 1.5rem;
-    margin-bottom: 0.5rem;
+    margin-top: 1.4rem;
+    margin-bottom: 0.4rem;
     font-family: 'Great Vibes', cursive;
-    font-size: clamp(1.8rem, 4vw, 2.4rem);
+    font-size: clamp(1.7rem, 5vw, 2.4rem);
     color: var(--gold-dark);
   }
 
   /* divider */
   .divider {
     display: flex; align-items: center; gap: 1rem;
-    margin: 2rem auto;
-    max-width: 300px;
+    margin: 1.6rem auto;
+    max-width: 260px;
+    width: 100%;
   }
   .divider::before, .divider::after {
     content: ''; flex: 1;
@@ -319,7 +331,6 @@
   /* ─── PANEL 3: PHOTOS ─── */
   .panel-photos {
     background: linear-gradient(160deg, #fdf7f0 0%, var(--cream) 50%, #f5e9df 100%);
-    padding: 40px 30px;
     text-align: center;
   }
   .panel-photos-texture {
@@ -334,20 +345,21 @@
   }
   .photos-title {
     font-family: 'Great Vibes', cursive;
-    font-size: clamp(2rem, 6vw, 3.8rem);
+    font-size: clamp(2rem, 7vw, 3.8rem);
     color: var(--gold-dark);
+    display: block;
   }
   .photos-sub {
     font-style: italic;
     color: var(--rose);
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     margin-top: 0.2rem;
   }
   .photos-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 14px;
-    margin-top: 1.5rem;
+    gap: 10px;
+    margin-top: 1.2rem;
   }
   .photo-card {
     position: relative;
@@ -356,37 +368,25 @@
     cursor: pointer;
     background: #f5ede5;
     border: 1px solid rgba(201,169,110,0.3);
-    box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+    box-shadow: 0 6px 24px rgba(0,0,0,0.08);
     transition: transform 0.4s ease, box-shadow 0.4s ease;
   }
-  .photo-card:hover { transform: translateY(-4px); box-shadow: 0 18px 50px rgba(0,0,0,0.13); }
-  .photo-card:first-child { grid-column: 1 / -1; height: clamp(180px, 28vh, 320px); }
-  .photo-card:not(:first-child) { height: clamp(140px, 22vh, 240px); }
+  @media (hover:hover) {
+    .photo-card:hover { transform: translateY(-4px); box-shadow: 0 18px 50px rgba(0,0,0,0.13); }
+  }
+  .photo-card:first-child { grid-column: 1 / -1; height: clamp(160px, 36vw, 320px); }
+  .photo-card:not(:first-child) { height: clamp(120px, 28vw, 220px); }
   .photo-card img { width:100%; height:100%; object-fit:cover; display:block; opacity:0; transition:opacity 0.5s; }
   .photo-card img.loaded { opacity: 1; }
-  .photo-placeholder {
-    position: absolute; inset: 0;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center; gap: 10px;
-  }
-  .photo-placeholder .ph-icon { font-size: 2rem; color: var(--gold); opacity: 0.6; }
-  .photo-placeholder .ph-text {
-    font-family: 'Jost', sans-serif; font-weight: 300;
-    font-size: 0.7rem; letter-spacing: 0.3em; text-transform: uppercase;
-    color: var(--gold-dark); opacity: 0.7;
-  }
-  .photo-placeholder .ph-sub { font-style: italic; font-size: 0.85rem; color: var(--rose); opacity: 0.7; }
-  .photo-card input[type=file] { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; z-index:3; }
-  .photo-corner { position:absolute; width:18px; height:18px; border-color:var(--gold); border-style:solid; border-width:0; opacity:0.55; }
-  .photo-corner.tl { top:8px; left:8px; border-top-width:2px; border-left-width:2px; }
-  .photo-corner.tr { top:8px; right:8px; border-top-width:2px; border-right-width:2px; }
-  .photo-corner.bl { bottom:8px; left:8px; border-bottom-width:2px; border-left-width:2px; }
-  .photo-corner.br { bottom:8px; right:8px; border-bottom-width:2px; border-right-width:2px; }
+  .photo-corner { position:absolute; width:14px; height:14px; border-color:var(--gold); border-style:solid; border-width:0; opacity:0.55; z-index:2; }
+  .photo-corner.tl { top:6px; left:6px; border-top-width:2px; border-left-width:2px; }
+  .photo-corner.tr { top:6px; right:6px; border-top-width:2px; border-right-width:2px; }
+  .photo-corner.bl { bottom:6px; left:6px; border-bottom-width:2px; border-left-width:2px; }
+  .photo-corner.br { bottom:6px; right:6px; border-bottom-width:2px; border-right-width:2px; }
 
   /* ─── PANEL 4: SCRATCH ─── */
   .panel-scratch {
     background: linear-gradient(135deg, #fdf3f0 0%, var(--blush) 60%, #f0e8e4 100%);
-    padding: 40px 30px;
     text-align: center;
   }
   .scratch-inner {
@@ -395,23 +395,24 @@
   }
   .scratch-section-title {
     font-family: 'Great Vibes', cursive;
-    font-size: clamp(2rem, 6vw, 3.8rem);
+    font-size: clamp(2rem, 7vw, 3.8rem);
     color: var(--gold-dark);
     margin-bottom: 0.3rem;
   }
   .scratch-hint {
     font-family: 'Jost', sans-serif; font-weight: 300;
-    font-size: 0.78rem; letter-spacing: 0.3em; text-transform: uppercase;
-    color: var(--rose); margin-bottom: 2.5rem;
+    font-size: 0.72rem; letter-spacing: 0.28em; text-transform: uppercase;
+    color: var(--rose); margin-bottom: 2rem;
   }
   .scratch-row {
     display: flex; justify-content: center;
-    gap: clamp(14px, 4vw, 40px); flex-wrap: wrap;
+    gap: clamp(12px, 5vw, 40px); flex-wrap: nowrap;
   }
+  .scratch-col { display: flex; flex-direction: column; align-items: center; }
   .scratch-card {
     position: relative;
-    width: clamp(80px, 20vw, 130px);
-    height: clamp(80px, 20vw, 130px);
+    width: clamp(78px, 22vw, 130px);
+    height: clamp(78px, 22vw, 130px);
     border-radius: 50%;
     overflow: hidden;
     box-shadow: 0 8px 35px rgba(0,0,0,0.14);
@@ -427,42 +428,41 @@
   }
   .scratch-reveal .reveal-value {
     font-family: 'Great Vibes', cursive;
-    font-size: clamp(1.8rem, 5vw, 3rem);
+    font-size: clamp(1.6rem, 5.5vw, 3rem);
     color: var(--gold-dark); line-height: 1;
   }
   .scratch-reveal .reveal-label {
     font-family: 'Jost', sans-serif; font-weight: 300;
-    font-size: 0.58rem; letter-spacing: 0.28em; text-transform: uppercase;
-    color: var(--rose); margin-top: 4px;
+    font-size: 0.52rem; letter-spacing: 0.25em; text-transform: uppercase;
+    color: var(--rose); margin-top: 3px;
   }
   .scratch-canvas {
     position: absolute; inset: 0;
     border-radius: 50%; z-index: 2; touch-action: none;
   }
   .scratch-label {
-    margin-top: 10px;
-    font-family: 'Jost', sans-serif; font-size: 0.62rem;
-    letter-spacing: 0.3em; text-transform: uppercase;
+    margin-top: 8px;
+    font-family: 'Jost', sans-serif; font-size: 0.58rem;
+    letter-spacing: 0.28em; text-transform: uppercase;
     color: var(--gold-dark); opacity: 0.65;
   }
   #full-date-reveal {
-    display: none; margin-top: 2.8rem;
+    display: none; margin-top: 2.2rem;
   }
   #full-date-reveal .date-big {
     font-family: 'Great Vibes', cursive;
-    font-size: clamp(2rem, 6vw, 3.5rem);
+    font-size: clamp(1.8rem, 6vw, 3.5rem);
     color: var(--gold-dark);
   }
   #full-date-reveal .date-sub {
     font-family: 'Jost', sans-serif; font-weight: 200;
-    font-size: 0.68rem; letter-spacing: 0.42em; text-transform: uppercase;
+    font-size: 0.65rem; letter-spacing: 0.42em; text-transform: uppercase;
     color: var(--rose); margin-top: 0.5rem;
   }
 
   /* ─── PANEL 5: DETAILS ─── */
   .panel-details {
     background: linear-gradient(135deg, #2a1a0c 0%, #1a1008 60%, #0f0905 100%);
-    padding: 40px 30px;
     text-align: center;
     position: relative;
   }
@@ -472,7 +472,6 @@
     background: radial-gradient(ellipse 65% 55% at 50% 50%, rgba(201,169,110,0.1) 0%, transparent 70%);
     pointer-events: none;
   }
-  /* decorative radial lines */
   .panel-details::after {
     content: '';
     position: absolute; inset: 0;
@@ -485,51 +484,53 @@
   }
   .details-title {
     font-family: 'Great Vibes', cursive;
-    font-size: clamp(2.8rem, 8vw, 5.5rem);
+    font-size: clamp(2.4rem, 10vw, 5.5rem);
     color: var(--gold-light);
     text-shadow: 0 0 50px rgba(201,169,110,0.3);
     line-height: 1;
   }
-  .details-ornament { margin: 1.2rem 0 2rem; }
-  .detail-item { margin: 1.6rem 0; }
+  .details-ornament { margin: 1rem 0 1.6rem; }
+  .detail-item { margin: 1.3rem 0; }
   .detail-label {
     font-family: 'Jost', sans-serif; font-weight: 200;
-    font-size: 0.65rem; letter-spacing: 0.55em; text-transform: uppercase;
-    color: var(--gold); margin-bottom: 0.5rem;
+    font-size: 0.6rem; letter-spacing: 0.5em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 0.4rem;
   }
   .detail-value {
     font-family: 'Cormorant Garamond', serif;
-    font-size: clamp(1.3rem, 3.5vw, 2rem);
+    font-size: clamp(1.2rem, 4vw, 2rem);
     color: var(--cream); font-weight: 300;
   }
   .detail-value em { font-style: italic; color: var(--gold-light); }
   .detail-venue-sub {
     font-family: 'Jost', sans-serif; font-weight: 200;
-    font-size: 0.85rem; letter-spacing: 0.1em;
-    color: rgba(250,246,239,0.5); margin-top: 0.35rem;
+    font-size: 0.78rem; letter-spacing: 0.1em;
+    color: rgba(250,246,239,0.5); margin-top: 0.3rem;
   }
   .hr-gold {
     height: 1px;
     background: linear-gradient(90deg, transparent, rgba(201,169,110,0.25), transparent);
-    max-width: 300px; margin: 0 auto;
+    max-width: 280px; margin: 0 auto;
   }
   .map-btn {
     display: inline-flex; align-items: center; gap: 10px;
-    margin-top: 2.2rem; padding: 14px 38px;
+    margin-top: 2rem; padding: 13px 32px;
     background: transparent; border: 1px solid var(--gold);
     color: var(--gold-light);
     font-family: 'Jost', sans-serif; font-weight: 300;
-    font-size: 0.75rem; letter-spacing: 0.38em; text-transform: uppercase;
+    font-size: 0.7rem; letter-spacing: 0.35em; text-transform: uppercase;
     text-decoration: none; cursor: pointer;
     transition: background 0.3s, color 0.3s; border-radius: 1px;
   }
-  .map-btn:hover { background: var(--gold); color: var(--dark); }
-  .map-btn svg { width: 15px; height: 15px; fill: currentColor; }
+  @media (hover:hover) {
+    .map-btn:hover { background: var(--gold); color: var(--dark); }
+  }
+  .map-btn:active { background: var(--gold); color: var(--dark); }
+  .map-btn svg { width: 14px; height: 14px; fill: currentColor; }
 
   /* ─── PANEL 6: CLOSING ─── */
   .panel-closing {
     background: linear-gradient(160deg, var(--blush) 0%, #ecddd6 50%, var(--cream) 100%);
-    padding: 40px 30px;
     text-align: center;
     border-top: 1px solid rgba(201,169,110,0.15);
   }
@@ -539,34 +540,33 @@
   }
   .closing-eyebrow {
     font-family: 'Jost', sans-serif; font-weight: 200;
-    font-size: 0.68rem; letter-spacing: 0.5em; text-transform: uppercase;
-    color: var(--text); 
-    margin-bottom: 2rem;
+    font-size: 0.65rem; letter-spacing: 0.5em; text-transform: uppercase;
+    color: var(--text);
+    margin-bottom: 1.8rem;
   }
   .closing-quote {
     font-family: 'Cormorant Garamond', serif;
     font-style: italic;
-    font-size: clamp(1.1rem, 3vw, 1.55rem);
-    color: var(--text); line-height: 1.9;
+    font-size: clamp(1rem, 3.5vw, 1.55rem);
+    color: var(--text); line-height: 1.85;
   }
   .closing-names {
     font-family: 'Great Vibes', cursive;
-    font-size: clamp(2.8rem, 9vw, 5.5rem);
-    color: var(--gold-dark); margin-top: 1.8rem;
+    font-size: clamp(2.5rem, 11vw, 5.5rem);
+    color: var(--gold-dark); margin-top: 1.5rem;
     text-shadow: 0 2px 20px rgba(0,0,0,0.06);
     line-height: 1;
   }
   .closing-footer {
-    margin-top: 2rem;
+    margin-top: 1.8rem;
     font-family: 'Jost', sans-serif; font-weight: 200;
-    font-size: 0.7rem; letter-spacing: 0.45em; text-transform: uppercase;
+    font-size: 0.65rem; letter-spacing: 0.45em; text-transform: uppercase;
     color: var(--rose); opacity: 0.8;
   }
-  /* watermark monogram */
   .closing-mono {
     position: absolute;
     font-family: 'Great Vibes', cursive;
-    font-size: clamp(14rem, 35vw, 22rem);
+    font-size: clamp(10rem, 40vw, 22rem);
     color: rgba(201,169,110,0.05);
     line-height: 1;
     pointer-events: none;
@@ -579,14 +579,14 @@
   footer {
     background: #110a04;
     text-align: center;
-    padding: 22px;
+    padding: 22px 16px;
     font-family: 'Jost', sans-serif; font-weight: 200;
-    font-size: 0.62rem; letter-spacing: 0.45em; text-transform: uppercase;
+    font-size: 0.58rem; letter-spacing: 0.4em; text-transform: uppercase;
     color: rgba(201,169,110,0.35);
   }
 
   /* ─── SCROLL REVEAL ─── */
-  .reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.9s ease, transform 0.9s ease; }
+  .reveal { opacity: 0; transform: translateY(22px); transition: opacity 0.85s ease, transform 0.85s ease; }
   .reveal.visible { opacity: 1; transform: none; }
   .reveal-delay-1 { transition-delay: 0.15s; }
   .reveal-delay-2 { transition-delay: 0.3s; }
@@ -594,30 +594,46 @@
 
   /* ─── MUSIC INDICATOR ─── */
   #music-indicator {
-    position: fixed; bottom: 24px; right: 24px;
-    z-index: 5000; display: none; align-items: center; gap: 10px;
-    padding: 10px 18px;
-    background: rgba(26,16,8,0.1); border: 1px solid rgba(201,169,110,0.3);
+    position: fixed; bottom: max(20px, env(safe-area-inset-bottom, 20px)); right: 20px;
+    z-index: 5000; display: none; align-items: center; gap: 8px;
+    padding: 9px 16px;
+    background: rgba(26,16,8,0.75); border: 1px solid rgba(201,169,110,0.3);
     border-radius: 30px; cursor: pointer; backdrop-filter: blur(8px);
   }
-  #music-indicator .bars { display:flex; gap:3px; align-items:flex-end; height:18px; }
+  #music-indicator .bars { display:flex; gap:3px; align-items:flex-end; height:16px; }
   #music-indicator .bar { width:3px; background:var(--gold); border-radius:2px; animation:bar-anim 0.8s ease-in-out infinite alternate; }
   #music-indicator .bar:nth-child(2){animation-delay:.15s}
   #music-indicator .bar:nth-child(3){animation-delay:.3s}
   #music-indicator .bar:nth-child(4){animation-delay:.45s}
-  @keyframes bar-anim { from{height:4px} to{height:18px} }
+  @keyframes bar-anim { from{height:4px} to{height:16px} }
   #music-indicator.paused .bar { animation-play-state:paused; opacity:0.4; }
   #music-indicator span {
-    font-family:'Jost',sans-serif; font-weight:200; font-size:0.62rem;
-    letter-spacing:0.25em; text-transform:uppercase; color:var(--gold);
+    font-family:'Jost',sans-serif; font-weight:200; font-size:0.58rem;
+    letter-spacing:0.22em; text-transform:uppercase; color:var(--gold);
   }
 
-  /* ─── RESPONSIVE ─── */
-  @media (max-width: 500px) {
-    .photos-grid { grid-template-columns: 1fr; }
-    .photo-card:first-child { height: 220px; }
-    .photo-card:not(:first-child) { height: 180px; }
-    .panel-corners::before,.panel-corners::after,.panel-corner-bl,.panel-corner-br { width:24px; height:24px; }
+  /* ─── MOBILE-ONLY REFINEMENTS ─── */
+  @media (max-width: 480px) {
+    /* single column photos on very small screens */
+    .photos-grid {
+      grid-template-columns: 1fr;
+    }
+    .photo-card:first-child { height: 200px; }
+    .photo-card:not(:first-child) { height: 170px; }
+
+    /* tighten panel corners */
+    .panel-corners::before,.panel-corners::after,.panel-corner-bl,.panel-corner-br {
+      width: 20px; height: 20px;
+    }
+
+    /* message block smaller padding */
+    .message-block { padding: 28px 18px 22px; }
+  }
+
+  /* Landscape mobile — keep panels scrollable without overflow */
+  @media (max-height: 500px) and (orientation: landscape) {
+    .panel { min-height: auto; padding-top: 32px; }
+    .panel-content { justify-content: flex-start; padding-top: 10px; }
   }
 </style>
 </head>
@@ -628,11 +644,11 @@
 <div id="music-indicator" onclick="toggleMusic()">
   <div class="bars">
     <div class="bar" style="height:10px"></div>
-    <div class="bar" style="height:16px"></div>
-    <div class="bar" style="height:8px"></div>
     <div class="bar" style="height:14px"></div>
+    <div class="bar" style="height:8px"></div>
+    <div class="bar" style="height:12px"></div>
   </div>
-  <span id="music-label">On</span>
+  <span id="music-label"></span>
 </div>
 
 <!-- ═══ COVER ═══ -->
@@ -642,7 +658,7 @@
   <div class="cover-ornament"></div>
   <div class="cover-ornament"></div>
   <div class="cover-ornament"></div>
-  <div class="cover-pre" style="font-family:'Jost',sans-serif;margin-top: 150px; font-weight:200;font-size:0.7rem;letter-spacing:0.6em;color:var(--gold);text-transform:uppercase;margin-bottom:1.5rem;opacity:.8;position:relative;z-index:2;">A Joyful Union</div>
+  <div class="cover-pre" style="font-family:'Jost',sans-serif;font-weight:200;font-size:0.68rem;letter-spacing:0.55em;color:var(--gold);text-transform:uppercase;margin-bottom:1.4rem;opacity:.8;position:relative;z-index:2;">A Joyful Union</div>
   <div class="cover-title">Saad & Jasna</div>
   <div class="cover-sub">23 · 05 · 2026</div>
   <div class="cover-sub">YOUNUS convention center</div>
@@ -663,21 +679,24 @@
     <div class="panel-hero-texture"></div>
     <div class="panel-corner-bl"></div>
     <div class="panel-corner-br"></div>
-    <div class="hero-eyebrow reveal">With the blessings of our families</div>
-    <div class="hero-names reveal reveal-delay-1">
-      Saad
-      <span class="hero-amp">&</span>
-      Jasna
+    <div class="panel-content">
+      <div class="hero-eyebrow reveal">With the blessings of our families</div>
+      <div class="hero-names reveal reveal-delay-1">
+        Saad
+        <span class="hero-amp">&</span>
+        Jasna
+      </div>
+      <div class="hero-tagline reveal reveal-delay-2">cordially request the honour of your presence</div>
+      <div class="hero-ornament reveal reveal-delay-3">
+        <svg width="180" height="28" viewBox="0 0 200 30" xmlns="http://www.w3.org/2000/svg">
+          <line x1="0" y1="15" x2="82" y2="15" stroke="#c9a96e" stroke-width="0.8" opacity="0.55"/>
+          <text x="100" y="20" text-anchor="middle" font-family="serif" font-size="18" fill="#c9a96e">❧</text>
+          <line x1="118" y1="15" x2="200" y2="15" stroke="#c9a96e" stroke-width="0.8" opacity="0.55"/>
+        </svg>
+      </div>
     </div>
-    <div class="hero-tagline reveal reveal-delay-2">cordially request the honour of your presence</div>
-    <div class="hero-ornament reveal reveal-delay-3">
-      <svg width="200" height="30" viewBox="0 0 200 30" xmlns="http://www.w3.org/2000/svg">
-        <line x1="0" y1="15" x2="82" y2="15" stroke="#c9a96e" stroke-width="0.8" opacity="0.55"/>
-        <text x="100" y="20" text-anchor="middle" font-family="serif" font-size="18" fill="#c9a96e">❧</text>
-        <line x1="118" y1="15" x2="200" y2="15" stroke="#c9a96e" stroke-width="0.8" opacity="0.55"/>
-      </svg>
-    </div>
-    <div class="scroll-cue" style="margin-top:-100px">
+    <!-- Scroll cue in normal flow, pushed to bottom -->
+    <div class="scroll-cue">
       <span>Scroll</span>
       <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
     </div>
@@ -688,22 +707,24 @@
     <div class="panel-message-texture"></div>
     <div class="panel-corner-bl"></div>
     <div class="panel-corner-br"></div>
-    <div class="message-inner">
-      <div class="divider reveal"><span>✦</span></div>
-      <div class="message-block reveal reveal-delay-1">
-        <p class="message-text">
-          Two souls, one journey.<br><br>
-          We are overjoyed to share with you the most precious chapter of our lives —
-          our wedding day. <br> As we begin this beautiful new path together,
-          your presence would mean the world to us and fill our hearts with immeasurable joy.<br><br>
-          This is not just a celebration of a wedding <br>
-          it is a celebration of love, of family and of every beautiful moment
-          that brought us here. <br> We humbly and lovingly invite you to be part of our forever.
-        </p>
-        <div class="message-sign">With all our love <br> Saad & Jasna</div>
+    <div class="panel-content">
+      <div class="message-inner">
+        <div class="divider reveal"><span>✦</span></div>
+        <div class="message-block reveal reveal-delay-1">
+          <p class="message-text">
+            Two souls, one journey.<br><br>
+            We are overjoyed to share with you the most precious chapter of our lives —
+            our wedding day. As we begin this beautiful new path together,
+            your presence would mean the world to us and fill our hearts with immeasurable joy.<br><br>
+            This is not just a celebration of a wedding —
+            it is a celebration of love, of family and of every beautiful moment
+            that brought us here. We humbly and lovingly invite you to be part of our forever.
+          </p>
+          <div class="message-sign">With all our love <br> Saad & Jasna</div>
+        </div>
       </div>
     </div>
-    <div class="scroll-cue" style="color:var(--gold-dark)">
+    <div class="scroll-cue" style="--cue-color:var(--gold-dark)">
       <span style="color:var(--gold-dark)">Scroll</span>
       <svg viewBox="0 0 24 24" style="stroke:var(--gold-dark)"><polyline points="6 9 12 15 18 9"/></svg>
     </div>
@@ -714,46 +735,47 @@
     <div class="panel-photos-texture"></div>
     <div class="panel-corner-bl"></div>
     <div class="panel-corner-br"></div>
-    <div class="photos-inner">
-      <div class="divider reveal"><span>❧</span></div>
-      <a href="https://saadsulmi.github.io/our-website/" style="text-decoration: none;" class="photos-title reveal reveal-delay-1">Our Story</a>
-      <div class="photos-grid reveal reveal-delay-3">
-        <div class="photo-card" id="pc01">
-          <div class="photo-corner tl"></div><div class="photo-corner tr"></div>
-          <div class="photo-corner bl"></div><div class="photo-corner br"></div>
-          <img id="img02" alt="Photo 01" src="0001.jpg" class="loaded">
+    <div class="panel-content">
+      <div class="photos-inner">
+        <div class="divider reveal"><span>❧</span></div>
+        <a href="https://saadsulmi.github.io/our-website/" style="text-decoration:none;" class="photos-title reveal reveal-delay-1">Our Story</a>
+        <div class="photos-grid reveal reveal-delay-3">
+          <div class="photo-card" id="pc01">
+            <div class="photo-corner tl"></div><div class="photo-corner tr"></div>
+            <div class="photo-corner bl"></div><div class="photo-corner br"></div>
+            <img id="img02" alt="Photo 01" src="0001.jpg" class="loaded">
+          </div>
+          <div class="photo-card" id="pc1">
+            <div class="photo-corner tl"></div><div class="photo-corner tr"></div>
+            <div class="photo-corner bl"></div><div class="photo-corner br"></div>
+            <img alt="Photo 1" src="1000254982.png" class="loaded">
+          </div>
+          <div class="photo-card" id="pc03">
+            <div class="photo-corner tl"></div><div class="photo-corner tr"></div>
+            <div class="photo-corner bl"></div><div class="photo-corner br"></div>
+            <img alt="Photo 3" src="0006.png" class="loaded">
+          </div>
+          <div class="photo-card" id="pc003">
+            <div class="photo-corner tl"></div><div class="photo-corner tr"></div>
+            <div class="photo-corner bl"></div><div class="photo-corner br"></div>
+            <img alt="Photo 4" src="0008.png" class="loaded">
+          </div>
+          <div class="photo-card" id="pc0003">
+            <div class="photo-corner tl"></div><div class="photo-corner tr"></div>
+            <div class="photo-corner bl"></div><div class="photo-corner br"></div>
+            <img alt="Photo 5" src="0009.png" class="loaded">
+          </div>
+          <div class="photo-card" id="pc3">
+            <div class="photo-corner tl"></div><div class="photo-corner tr"></div>
+            <div class="photo-corner bl"></div><div class="photo-corner br"></div>
+            <img alt="Photo 6" src="0007.png" class="loaded">
+          </div>
+          <div class="photo-card" id="pc2">
+            <div class="photo-corner tl"></div><div class="photo-corner tr"></div>
+            <div class="photo-corner bl"></div><div class="photo-corner br"></div>
+            <img alt="Photo 7" src="1000254980.png" class="loaded">
+          </div>
         </div>
-        <div class="photo-card" id="pc1">
-          <div class="photo-corner tl"></div><div class="photo-corner tr"></div>
-          <div class="photo-corner bl"></div><div class="photo-corner br"></div>
-          <img id="img2" alt="Photo 1" src="1000254982.png" class="loaded">
-        </div>
-        <div class="photo-card" id="pc03">
-          <div class="photo-corner tl"></div><div class="photo-corner tr"></div>
-          <div class="photo-corner bl"></div><div class="photo-corner br"></div>
-          <img id="img03" alt="Photo 3" src="0006.png" class="loaded">
-        </div>
-        <div class="photo-card" id="pc003">
-          <div class="photo-corner tl"></div><div class="photo-corner tr"></div>
-          <div class="photo-corner bl"></div><div class="photo-corner br"></div>
-          <img id="img003" alt="Photo 3" src="0008.png" class="loaded">
-        </div>
-        <div class="photo-card" id="pc0003">
-          <div class="photo-corner tl"></div><div class="photo-corner tr"></div>
-          <div class="photo-corner bl"></div><div class="photo-corner br"></div>
-          <img id="img0003" alt="Photo 3" src="0009.png" class="loaded">
-        </div>
-        <div class="photo-card" id="pc3">
-          <div class="photo-corner tl"></div><div class="photo-corner tr"></div>
-          <div class="photo-corner bl"></div><div class="photo-corner br"></div>
-          <img id="img2" alt="Photo 3" src="0007.png" class="loaded">
-        </div>
-        <div class="photo-card" id="pc2">
-          <div class="photo-corner tl"></div><div class="photo-corner tr"></div>
-          <div class="photo-corner bl"></div><div class="photo-corner br"></div>
-          <img id="img2" alt="Photo 2" src="1000254980.png" class="loaded">
-        </div>
-        
       </div>
     </div>
     <div class="scroll-cue" style="color:var(--gold-dark)">
@@ -766,36 +788,38 @@
   <section class="panel panel-scratch panel-corners">
     <div class="panel-corner-bl"></div>
     <div class="panel-corner-br"></div>
-    <div class="scratch-inner">
-      <div class="divider reveal"><span>♥</span></div>
-      <div class="scratch-section-title reveal reveal-delay-1">Reveal the Date</div>
-      <div class="scratch-hint reveal reveal-delay-2">Scratch the hearts to discover our special day</div>
-      <div class="scratch-row reveal reveal-delay-3">
-        <div>
-          <div class="scratch-card">
-            <div class="scratch-reveal"><span class="reveal-value">23</span><span class="reveal-label">Day</span></div>
-            <canvas class="scratch-canvas" id="sc1"></canvas>
+    <div class="panel-content">
+      <div class="scratch-inner">
+        <div class="divider reveal"><span>♥</span></div>
+        <div class="scratch-section-title reveal reveal-delay-1">Reveal the Date</div>
+        <div class="scratch-hint reveal reveal-delay-2">Scratch the hearts to discover our special day</div>
+        <div class="scratch-row reveal reveal-delay-3">
+          <div class="scratch-col">
+            <div class="scratch-card">
+              <div class="scratch-reveal"><span class="reveal-value">23</span><span class="reveal-label">Day</span></div>
+              <canvas class="scratch-canvas" id="sc1"></canvas>
+            </div>
+            <div class="scratch-label">Day</div>
           </div>
-          <div class="scratch-label">Day</div>
-        </div>
-        <div>
-          <div class="scratch-card">
-            <div class="scratch-reveal"><span class="reveal-value">May</span><span class="reveal-label">Month</span></div>
-            <canvas class="scratch-canvas" id="sc2"></canvas>
+          <div class="scratch-col">
+            <div class="scratch-card">
+              <div class="scratch-reveal"><span class="reveal-value">May</span><span class="reveal-label">Month</span></div>
+              <canvas class="scratch-canvas" id="sc2"></canvas>
+            </div>
+            <div class="scratch-label">Month</div>
           </div>
-          <div class="scratch-label">Month</div>
-        </div>
-        <div>
-          <div class="scratch-card">
-            <div class="scratch-reveal"><span class="reveal-value">2026</span><span class="reveal-label">Year</span></div>
-            <canvas class="scratch-canvas" id="sc3"></canvas>
+          <div class="scratch-col">
+            <div class="scratch-card">
+              <div class="scratch-reveal"><span class="reveal-value">2026</span><span class="reveal-label">Year</span></div>
+              <canvas class="scratch-canvas" id="sc3"></canvas>
+            </div>
+            <div class="scratch-label">Year</div>
           </div>
-          <div class="scratch-label">Year</div>
         </div>
-      </div>
-      <div id="full-date-reveal">
-        <div class="date-big">Saturday, 23rd May 2026</div>
-        <div class="date-sub">Our Wedding Day</div>
+        <div id="full-date-reveal">
+          <div class="date-big">Saturday, 23rd May 2026</div>
+          <div class="date-sub">Our Wedding Day</div>
+        </div>
       </div>
     </div>
     <div class="scroll-cue" style="color:var(--rose)">
@@ -808,34 +832,36 @@
   <section class="panel panel-details panel-corners">
     <div class="panel-corner-bl"></div>
     <div class="panel-corner-br"></div>
-    <div class="details-inner">
-      <div class="details-title reveal">The Celebration</div>
-      <div class="details-ornament reveal reveal-delay-1">
-        <svg width="160" height="20" viewBox="0 0 160 20" xmlns="http://www.w3.org/2000/svg">
-          <line x1="0" y1="10" x2="62" y2="10" stroke="#c9a96e" stroke-width="0.8" opacity="0.4"/>
-          <text x="80" y="15" text-anchor="middle" font-size="12" fill="#c9a96e" font-family="serif">✦</text>
-          <line x1="98" y1="10" x2="160" y2="10" stroke="#c9a96e" stroke-width="0.8" opacity="0.4"/>
-        </svg>
+    <div class="panel-content">
+      <div class="details-inner">
+        <div class="details-title reveal">The Celebration</div>
+        <div class="details-ornament reveal reveal-delay-1">
+          <svg width="140" height="18" viewBox="0 0 160 20" xmlns="http://www.w3.org/2000/svg">
+            <line x1="0" y1="10" x2="62" y2="10" stroke="#c9a96e" stroke-width="0.8" opacity="0.4"/>
+            <text x="80" y="15" text-anchor="middle" font-size="12" fill="#c9a96e" font-family="serif">✦</text>
+            <line x1="98" y1="10" x2="160" y2="10" stroke="#c9a96e" stroke-width="0.8" opacity="0.4"/>
+          </svg>
+        </div>
+        <div class="detail-item reveal reveal-delay-1">
+          <div class="detail-label">Date</div>
+          <div class="detail-value">Saturday, <em>23rd May 2026</em></div>
+        </div>
+        <div class="hr-gold reveal reveal-delay-2"></div>
+        <div class="detail-item reveal reveal-delay-2">
+          <div class="detail-label">Venue</div>
+          <div class="detail-value"><em>Younus Convention Centre</em></div>
+          <div class="detail-venue-sub">Asramam, Kollam, Kerala</div>
+        </div>
+        <div class="hr-gold reveal reveal-delay-3"></div>
+        <div class="detail-item reveal reveal-delay-3">
+          <div class="detail-label">Dress Code</div>
+          <div class="detail-value"><em>Formal Elegance</em></div>
+        </div>
+        <a class="map-btn reveal" href="https://www.google.com/maps/search/Younus+Convention+Centre+Asramam+Kollam+Kerala" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+          Get Directions
+        </a>
       </div>
-      <div class="detail-item reveal reveal-delay-1">
-        <div class="detail-label">Date</div>
-        <div class="detail-value">Saturday, <em>23rd May 2026</em></div>
-      </div>
-      <div class="hr-gold reveal reveal-delay-2"></div>
-      <div class="detail-item reveal reveal-delay-2">
-        <div class="detail-label">Venue</div>
-        <div class="detail-value"><em>Younus Convention Centre</em></div>
-        <div class="detail-venue-sub">Asramam, Kollam, Kerala</div>
-      </div>
-      <div class="hr-gold reveal reveal-delay-3"></div>
-      <div class="detail-item reveal reveal-delay-3">
-        <div class="detail-label">Dress Code</div>
-        <div class="detail-value"><em>Formal Elegance</em></div>
-      </div>
-      <a class="map-btn reveal" href="https://www.google.com/maps/search/Younus+Convention+Centre+Asramam+Kollam+Kerala" target="_blank" rel="noopener">
-        <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-        Get Directions
-      </a>
     </div>
     <div class="scroll-cue">
       <span>Scroll</span>
@@ -848,15 +874,17 @@
     <div class="panel-corner-bl"></div>
     <div class="panel-corner-br"></div>
     <div class="closing-mono">S&J</div>
-    <div class="closing-inner">
-      <div class="closing-eyebrow reveal">With love &amp; gratitude</div>
-      <p class="closing-quote reveal reveal-delay-1">
-        "Two hearts that have found each other <br> across time and chance 
-        <br>today they choose each other, forever."
-      </p>
-      <div class="divider reveal reveal-delay-2"><span>♥</span></div>
-      <div class="closing-names reveal reveal-delay-2">Saad & Jasna</div>
-      <div class="closing-footer reveal reveal-delay-3">23 · MAY · 2026</div>
+    <div class="panel-content">
+      <div class="closing-inner">
+        <div class="closing-eyebrow reveal">With love &amp; gratitude</div>
+        <p class="closing-quote reveal reveal-delay-1">
+          "Two hearts that have found each other <br>across time and chance —
+          <br>today they choose each other, forever."
+        </p>
+        <div class="divider reveal reveal-delay-2"><span>♥</span></div>
+        <div class="closing-names reveal reveal-delay-2">Saad & Jasna</div>
+        <div class="closing-footer reveal reveal-delay-3">23 · MAY · 2026</div>
+      </div>
     </div>
   </section>
 
@@ -865,24 +893,24 @@
 
 <script>
 // ══════════ AUDIO ══════════
-let audioCtx=null,musicPlaying=false,scheduledNodes=[],musicStarted=false;
-
+let musicAudio = null, musicPlaying = false, musicStarted = false;
 
 function startMusic() {
   if (musicStarted) return;
   musicStarted = true;
-
-  musicAudio = new Audio('music.mp3');  // ← put your file name/path here
+  musicAudio = new Audio('music.mp3');
   musicAudio.loop = true;
   musicAudio.volume = 0.5;
   musicAudio.play().then(() => {
     musicPlaying = true;
     const ind = document.getElementById('music-indicator');
     ind.style.display = 'flex';
-    document.getElementById('music-label').textContent = '';
     ind.classList.remove('paused');
   }).catch(() => {
-    // autoplay blocked — user will need to tap the music button
+    // autoplay blocked — show button for manual start
+    const ind = document.getElementById('music-indicator');
+    ind.style.display = 'flex';
+    ind.classList.add('paused');
   });
 }
 
@@ -893,143 +921,248 @@ function toggleMusic() {
     musicAudio.pause();
     musicPlaying = false;
     ind.classList.add('paused');
-    document.getElementById('music-label').textContent = '';
   } else {
     musicAudio.play();
     musicPlaying = true;
     ind.classList.remove('paused');
-    document.getElementById('music-label').textContent = '';
   }
 }
 
 // ══════════ OPEN ══════════
-function openInvitation(){
-  const cover=document.getElementById('cover');const inv=document.getElementById('invitation');
+function openInvitation() {
+  const cover = document.getElementById('cover');
+  const inv = document.getElementById('invitation');
   cover.classList.add('hidden');
-  setTimeout(()=>{cover.style.display='none';inv.style.display='block';},1200);
-  startMusic();startConfetti();
-  setTimeout(initScratch,1400);
-  setTimeout(initScrollReveal,1500);
-}
-
-// ══════════ PHOTOS ══════════
-function loadPhoto(input,imgId,cardId){
-  const file=input.files[0];if(!file)return;
-  const reader=new FileReader();
-  reader.onload=e=>{const img=document.getElementById(imgId);img.src=e.target.result;img.onload=()=>{img.classList.add('loaded');};document.getElementById(cardId).querySelector('.photo-placeholder').style.opacity='0';};
-  reader.readAsDataURL(file);
+  setTimeout(() => {
+    cover.style.display = 'none';
+    inv.style.display = 'block';
+  }, 1200);
+  startMusic();
+  startConfetti();
+  setTimeout(initScratch, 1400);
+  setTimeout(initScrollReveal, 1500);
 }
 
 // ══════════ SCRATCH ══════════
-function initScratch(){
-  ['sc1','sc2','sc3'].forEach((id,i)=>{
-    const canvas=document.getElementById(id);const card=canvas.parentElement;const size=card.offsetWidth;
-    canvas.width=size;canvas.height=size;
-    const ctx=canvas.getContext('2d');
-    ctx.fillStyle='#c4837a';ctx.fillRect(0,0,size,size);
-    ctx.fillStyle='rgba(180,60,60,0.3)';
-    for(let x=15;x<size;x+=28)for(let y=15;y<size;y+=28)drawHeart(ctx,x,y,7);
-    ctx.font=`bold ${size*0.13}px 'Cormorant Garamond',serif`;ctx.fillStyle='rgba(255,255,255,0.85)';ctx.textAlign='center';ctx.textBaseline='middle';
-    ctx.fillText(['♥ Scratch ♥','♥ Scratch ♥','♥ Scratch ♥'][i],size/2,size/2);
-    ctx.globalCompositeOperation='destination-out';
-    let scratching=false;
-    function getPos(e){const r=canvas.getBoundingClientRect();const client=e.touches?e.touches[0]:e;return[client.clientX-r.left,client.clientY-r.top];}
-    function scratch(x,y){
-      ctx.beginPath();ctx.arc(x,y,22,0,Math.PI*2);ctx.fill();
-      const imageData=canvas.getContext('2d').getImageData(0,0,size,size);let transparent=0;
-      for(let p=3;p<imageData.data.length;p+=4){if(imageData.data[p]<128)transparent++;}
-      if(transparent/(size*size)>0.55&&!canvas.dataset.revealed){canvas.dataset.revealed='1';canvas.style.transition='opacity 0.6s';canvas.style.opacity='0';checkAllRevealed();}
+function initScratch() {
+  ['sc1','sc2','sc3'].forEach((id, i) => {
+    const canvas = document.getElementById(id);
+    const card = canvas.parentElement;
+    const size = card.offsetWidth;
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#c4837a';
+    ctx.fillRect(0, 0, size, size);
+    ctx.fillStyle = 'rgba(180,60,60,0.3)';
+    for (let x = 15; x < size; x += 24) {
+      for (let y = 15; y < size; y += 24) drawHeart(ctx, x, y, 6);
     }
-    canvas.addEventListener('mousedown',e=>{scratching=true;const[x,y]=getPos(e);scratch(x,y);});
-    canvas.addEventListener('mousemove',e=>{if(!scratching)return;const[x,y]=getPos(e);scratch(x,y);});
-    canvas.addEventListener('mouseup',()=>scratching=false);
-    canvas.addEventListener('touchstart',e=>{e.preventDefault();scratching=true;const[x,y]=getPos(e);scratch(x,y);},{passive:false});
-    canvas.addEventListener('touchmove',e=>{e.preventDefault();if(!scratching)return;const[x,y]=getPos(e);scratch(x,y);},{passive:false});
-    canvas.addEventListener('touchend',()=>scratching=false);
+    ctx.font = `bold ${size * 0.12}px 'Cormorant Garamond', serif`;
+    ctx.fillStyle = 'rgba(255,255,255,0.85)';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('♥ Scratch ♥', size / 2, size / 2);
+    ctx.globalCompositeOperation = 'destination-out';
+
+    let scratching = false;
+
+    function getPos(e) {
+      const r = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / r.width;
+      const scaleY = canvas.height / r.height;
+      const client = e.touches ? e.touches[0] : e;
+      return [(client.clientX - r.left) * scaleX, (client.clientY - r.top) * scaleY];
+    }
+
+    function scratch(x, y) {
+      ctx.beginPath();
+      ctx.arc(x, y, size * 0.2, 0, Math.PI * 2);
+      ctx.fill();
+      // sample a subset for performance on mobile
+      const imageData = ctx.getImageData(0, 0, size, size);
+      let transparent = 0;
+      for (let p = 3; p < imageData.data.length; p += 16) {
+        if (imageData.data[p] < 128) transparent++;
+      }
+      const ratio = transparent / (imageData.data.length / 16);
+      if (ratio > 0.55 && !canvas.dataset.revealed) {
+        canvas.dataset.revealed = '1';
+        canvas.style.transition = 'opacity 0.6s';
+        canvas.style.opacity = '0';
+        checkAllRevealed();
+      }
+    }
+
+    canvas.addEventListener('mousedown', e => { scratching = true; scratch(...getPos(e)); });
+    canvas.addEventListener('mousemove', e => { if (scratching) scratch(...getPos(e)); });
+    canvas.addEventListener('mouseup', () => scratching = false);
+    canvas.addEventListener('mouseleave', () => scratching = false);
+    canvas.addEventListener('touchstart', e => { e.preventDefault(); scratching = true; scratch(...getPos(e)); }, { passive: false });
+    canvas.addEventListener('touchmove', e => { e.preventDefault(); if (scratching) scratch(...getPos(e)); }, { passive: false });
+    canvas.addEventListener('touchend', () => scratching = false);
   });
 }
-function drawHeart(ctx,x,y,r){ctx.save();ctx.translate(x,y);ctx.beginPath();ctx.moveTo(0,r*0.5);ctx.bezierCurveTo(-r,-r*0.5,-r*2,r*0.5,0,r*1.5);ctx.bezierCurveTo(r*2,r*0.5,r,-r*0.5,0,r*0.5);ctx.fill();ctx.restore();}
-function checkAllRevealed(){
-  const all=['sc1','sc2','sc3'].every(id=>document.getElementById(id).dataset.revealed);
-  if(all){setTimeout(()=>{const el=document.getElementById('full-date-reveal');el.style.display='block';el.style.animation='fade-up 1s ease both';burstCelebrationConfetti();},600);}
+
+function drawHeart(ctx, x, y, r) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.beginPath();
+  ctx.moveTo(0, r * 0.5);
+  ctx.bezierCurveTo(-r, -r * 0.5, -r * 2, r * 0.5, 0, r * 1.5);
+  ctx.bezierCurveTo(r * 2, r * 0.5, r, -r * 0.5, 0, r * 0.5);
+  ctx.fill();
+  ctx.restore();
+}
+
+function checkAllRevealed() {
+  const all = ['sc1','sc2','sc3'].every(id => document.getElementById(id).dataset.revealed);
+  if (all) {
+    setTimeout(() => {
+      const el = document.getElementById('full-date-reveal');
+      el.style.display = 'block';
+      el.style.animation = 'fade-up 1s ease both';
+      burstCelebrationConfetti();
+    }, 600);
+  }
 }
 
 // ══════════ GOLDEN CONFETTI ══════════
-const confettiCanvas=document.getElementById('particle-canvas');
-const cCtx=confettiCanvas.getContext('2d');
-let confettiPieces=[],confettiAnimFrame=null,confettiActive=false;
-const GOLD_PALETTE=['#c9a96e','#e8d5a3','#a07840','#f0c060','#d4af37','#fffacd'];
-const CONFETTI_SHAPES=['strip','diamond','star'];
-const MAX_CONFETTI=28;
-class ConfettiPiece{
-  constructor(x,y,burst){this.reset(x,y,burst);}
-  reset(x,y,burst){
-    this.x=x!==undefined?x:Math.random()*confettiCanvas.width;
-    this.y=y!==undefined?y:-12;
-    if(burst){const angle=Math.random()*Math.PI*2;const speed=Math.random()*6+2;this.vx=Math.cos(angle)*speed;this.vy=Math.sin(angle)*speed-4;this.gravity=0.18;}
-    else{this.vx=(Math.random()-.5)*1.2;this.vy=Math.random()*1.4+0.6;this.gravity=0.012;}
-    this.color=GOLD_PALETTE[Math.floor(Math.random()*GOLD_PALETTE.length)];
-    this.shape=CONFETTI_SHAPES[Math.floor(Math.random()*CONFETTI_SHAPES.length)];
-    if(this.shape==='strip'){this.w=Math.random()*3+2;this.h=Math.random()*14+8;}
-    else if(this.shape==='diamond'){this.w=Math.random()*7+5;this.h=this.w;}
-    else{this.w=Math.random()*6+4;this.h=this.w;}
-    this.rotation=Math.random()*Math.PI*2;
-    this.rotSpeed=(Math.random()-.5)*(this.shape==='strip'?0.18:0.06);
-    this.opacity=Math.random()*0.35+0.55;
-    this.shimmer=Math.random()*Math.PI*2;this.shimmerSpeed=Math.random()*0.04+0.02;
-    this.alive=true;this.burst=burst||false;
+const confettiCanvas = document.getElementById('particle-canvas');
+const cCtx = confettiCanvas.getContext('2d');
+let confettiPieces = [], confettiAnimFrame = null, confettiActive = false;
+const GOLD_PALETTE = ['#c9a96e','#e8d5a3','#a07840','#f0c060','#d4af37','#fffacd'];
+const CONFETTI_SHAPES = ['strip','diamond','star'];
+const MAX_CONFETTI = 22;
+
+class ConfettiPiece {
+  constructor(x, y, burst) { this.reset(x, y, burst); }
+  reset(x, y, burst) {
+    this.x = x !== undefined ? x : Math.random() * confettiCanvas.width;
+    this.y = y !== undefined ? y : -12;
+    if (burst) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = Math.random() * 6 + 2;
+      this.vx = Math.cos(angle) * speed;
+      this.vy = Math.sin(angle) * speed - 4;
+      this.gravity = 0.18;
+    } else {
+      this.vx = (Math.random() - .5) * 1.2;
+      this.vy = Math.random() * 1.4 + 0.6;
+      this.gravity = 0.012;
+    }
+    this.color = GOLD_PALETTE[Math.floor(Math.random() * GOLD_PALETTE.length)];
+    this.shape = CONFETTI_SHAPES[Math.floor(Math.random() * CONFETTI_SHAPES.length)];
+    this.w = this.shape === 'strip' ? Math.random() * 3 + 2 : Math.random() * 7 + 4;
+    this.h = this.shape === 'strip' ? Math.random() * 14 + 8 : this.w;
+    this.rotation = Math.random() * Math.PI * 2;
+    this.rotSpeed = (Math.random() - .5) * (this.shape === 'strip' ? 0.18 : 0.06);
+    this.opacity = Math.random() * 0.35 + 0.55;
+    this.shimmer = Math.random() * Math.PI * 2;
+    this.shimmerSpeed = Math.random() * 0.04 + 0.02;
+    this.flipPhase = 0;
+    this.alive = true;
+    this.burst = burst || false;
   }
-  update(){
-    this.vy+=this.gravity;this.x+=this.vx+Math.sin(this.y*0.018+this.shimmer)*0.35;this.y+=this.vy;
-    this.rotation+=this.rotSpeed;this.shimmer+=this.shimmerSpeed;
-    this.flipPhase=(this.flipPhase||0)+0.04;this.scaleX=Math.abs(Math.cos(this.flipPhase));
-    if(this.y>confettiCanvas.height-80)this.opacity-=0.018;
-    if(this.y>confettiCanvas.height+20||this.opacity<=0)this.alive=false;
+  update() {
+    this.vy += this.gravity;
+    this.x += this.vx + Math.sin(this.y * 0.018 + this.shimmer) * 0.35;
+    this.y += this.vy;
+    this.rotation += this.rotSpeed;
+    this.shimmer += this.shimmerSpeed;
+    this.flipPhase += 0.04;
+    this.scaleX = Math.abs(Math.cos(this.flipPhase));
+    if (this.y > confettiCanvas.height - 80) this.opacity -= 0.018;
+    if (this.y > confettiCanvas.height + 20 || this.opacity <= 0) this.alive = false;
   }
-  draw(){
-    cCtx.save();cCtx.translate(this.x,this.y);cCtx.rotate(this.rotation);
-    const shimmerOpacity=this.opacity*(0.85+0.15*Math.sin(this.shimmer));
-    cCtx.globalAlpha=Math.max(0,shimmerOpacity);cCtx.fillStyle=this.color;
-    if(this.color==='#fffacd'||this.color==='#f0c060'){cCtx.shadowColor='#c9a96e';cCtx.shadowBlur=4;}
-    if(this.shape==='strip'){const sx=this.scaleX!==undefined?this.scaleX:1;cCtx.scale(sx,1);cCtx.fillRect(-this.w/2,-this.h/2,this.w,this.h);}
-    else if(this.shape==='diamond'){cCtx.beginPath();cCtx.moveTo(0,-this.h/2);cCtx.lineTo(this.w/2,0);cCtx.lineTo(0,this.h/2);cCtx.lineTo(-this.w/2,0);cCtx.closePath();cCtx.fill();}
-    else{const r1=this.w/2,r2=this.w/4.5;cCtx.beginPath();for(let i=0;i<8;i++){const a=(i*Math.PI)/4;const r=i%2===0?r1:r2;i===0?cCtx.moveTo(Math.cos(a)*r,Math.sin(a)*r):cCtx.lineTo(Math.cos(a)*r,Math.sin(a)*r);}cCtx.closePath();cCtx.fill();}
+  draw() {
+    cCtx.save();
+    cCtx.translate(this.x, this.y);
+    cCtx.rotate(this.rotation);
+    cCtx.globalAlpha = Math.max(0, this.opacity * (0.85 + 0.15 * Math.sin(this.shimmer)));
+    cCtx.fillStyle = this.color;
+    if (this.shape === 'strip') {
+      cCtx.scale(this.scaleX, 1);
+      cCtx.fillRect(-this.w / 2, -this.h / 2, this.w, this.h);
+    } else if (this.shape === 'diamond') {
+      cCtx.beginPath();
+      cCtx.moveTo(0, -this.h / 2);
+      cCtx.lineTo(this.w / 2, 0);
+      cCtx.lineTo(0, this.h / 2);
+      cCtx.lineTo(-this.w / 2, 0);
+      cCtx.closePath();
+      cCtx.fill();
+    } else {
+      const r1 = this.w / 2, r2 = this.w / 4.5;
+      cCtx.beginPath();
+      for (let i = 0; i < 8; i++) {
+        const a = (i * Math.PI) / 4;
+        const r = i % 2 === 0 ? r1 : r2;
+        i === 0 ? cCtx.moveTo(Math.cos(a)*r, Math.sin(a)*r) : cCtx.lineTo(Math.cos(a)*r, Math.sin(a)*r);
+      }
+      cCtx.closePath();
+      cCtx.fill();
+    }
     cCtx.restore();
   }
 }
-function startConfetti(){
-  confettiCanvas.width=window.innerWidth;confettiCanvas.height=window.innerHeight;
-  confettiCanvas.style.opacity='1';confettiActive=true;
-  for(let i=0;i<MAX_CONFETTI;i++){const p=new ConfettiPiece(undefined,undefined,false);p.y=Math.random()*confettiCanvas.height;confettiPieces.push(p);}
+
+function startConfetti() {
+  confettiCanvas.width = window.innerWidth;
+  confettiCanvas.height = window.innerHeight;
+  confettiCanvas.style.opacity = '1';
+  confettiActive = true;
+  for (let i = 0; i < MAX_CONFETTI; i++) {
+    const p = new ConfettiPiece();
+    p.y = Math.random() * confettiCanvas.height;
+    confettiPieces.push(p);
+  }
   animateConfetti();
 }
-function animateConfetti(){
-  if(!confettiActive)return;cCtx.clearRect(0,0,confettiCanvas.width,confettiCanvas.height);
-  confettiPieces=confettiPieces.filter(p=>p.alive);
-  const driftCount=confettiPieces.filter(p=>!p.burst).length;
-  if(driftCount<18)confettiPieces.push(new ConfettiPiece(undefined,undefined,false));
-  confettiPieces.forEach(p=>{p.update();p.draw();});
-  confettiAnimFrame=requestAnimationFrame(animateConfetti);
+
+function animateConfetti() {
+  if (!confettiActive) return;
+  cCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+  confettiPieces = confettiPieces.filter(p => p.alive);
+  const driftCount = confettiPieces.filter(p => !p.burst).length;
+  if (driftCount < 16) confettiPieces.push(new ConfettiPiece());
+  confettiPieces.forEach(p => { p.update(); p.draw(); });
+  confettiAnimFrame = requestAnimationFrame(animateConfetti);
 }
-function burstCelebrationConfetti(){
-  const cx=confettiCanvas.width/2,cy=confettiCanvas.height*0.45;
-  for(let i=0;i<20;i++){const p=new ConfettiPiece(cx+(Math.random()-.5)*60,cy,true);confettiPieces.push(p);}
+
+function burstCelebrationConfetti() {
+  const cx = confettiCanvas.width / 2;
+  const cy = confettiCanvas.height * 0.45;
+  for (let i = 0; i < 20; i++) {
+    confettiPieces.push(new ConfettiPiece(cx + (Math.random() - .5) * 60, cy, true));
+  }
 }
-let lastScrollY=0;
-window.addEventListener('scroll',()=>{
-  const dy=Math.abs(window.scrollY-lastScrollY);
-  if(dy>60&&confettiActive){const add=2+Math.floor(Math.random()*2);for(let i=0;i<add;i++)confettiPieces.push(new ConfettiPiece(undefined,undefined,false));if(confettiPieces.length>40)confettiPieces.splice(0,confettiPieces.length-40);}
-  lastScrollY=window.scrollY;
+
+let lastScrollY = 0;
+window.addEventListener('scroll', () => {
+  const dy = Math.abs(window.scrollY - lastScrollY);
+  if (dy > 60 && confettiActive) {
+    const add = 2 + Math.floor(Math.random() * 2);
+    for (let i = 0; i < add; i++) confettiPieces.push(new ConfettiPiece());
+    if (confettiPieces.length > 40) confettiPieces.splice(0, confettiPieces.length - 40);
+  }
+  lastScrollY = window.scrollY;
+}, { passive: true });
+
+window.addEventListener('resize', () => {
+  confettiCanvas.width = window.innerWidth;
+  confettiCanvas.height = window.innerHeight;
 });
-window.addEventListener('resize',()=>{confettiCanvas.width=window.innerWidth;confettiCanvas.height=window.innerHeight;});
 
 // ══════════ SCROLL REVEAL ══════════
-function initScrollReveal(){
-  const els=document.querySelectorAll('.reveal');
-  const obs=new IntersectionObserver(entries=>{
-    entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);}});
-  },{threshold:0.1});
-  els.forEach(el=>obs.observe(el));
+function initScrollReveal() {
+  const els = document.querySelectorAll('.reveal');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }
+    });
+  }, { threshold: 0.08 });
+  els.forEach(el => obs.observe(el));
 }
 </script>
 </body>
