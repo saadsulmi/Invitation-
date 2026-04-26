@@ -52,7 +52,6 @@
     overflow: hidden;
     background: radial-gradient(ellipse at 50% 60%, #2e1a0e 0%, #110a04 60%, #070401 100%);
     transition: opacity 1.2s ease, transform 1.2s ease;
-    /* safe area for notched phones */
     padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   }
   #cover.hidden { opacity: 0; pointer-events: none; transform: scale(1.06); }
@@ -135,13 +134,8 @@
   #invitation { display: none; }
 
   /* ─── PANELS ─── */
-  /* 
-     KEY FIX: Panels are flex columns. Content takes up natural space.
-     The scroll-cue is no longer position:absolute — it sits in normal flow
-     at the bottom via margin-top:auto. This guarantees it's always visible.
-  */
   .panel {
-    min-height: 100svh; /* svh = small viewport height — respects mobile browser chrome */
+    min-height: 100svh;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -149,10 +143,10 @@
     position: relative;
     overflow: hidden;
     padding-top: clamp(36px, 8vw, 64px);
-    padding-bottom: 0; /* scroll-cue provides bottom spacing */
+    padding-bottom: 0;
   }
 
-  /* ─── SCROLL CUE — now in normal flow ─── */
+  /* ─── SCROLL CUE ─── */
   .scroll-cue {
     width: 100%;
     display: flex;
@@ -160,7 +154,7 @@
     align-items: center;
     gap: 5px;
     padding: clamp(16px, 4vw, 28px) 0 clamp(20px, 5vw, 32px);
-    margin-top: auto; /* pushes to bottom of flex column */
+    margin-top: auto;
     opacity: 0.55;
     animation: bob 2.4s ease-in-out infinite;
     flex-shrink: 0;
@@ -196,7 +190,6 @@
   .panel-corner-br { bottom: 20px; right: 20px; border-bottom-width: 1px; border-right-width: 1px; position: absolute; width: 28px; height: 28px; border-color: rgba(201,169,110,0.3); border-style: solid; border-width: 0; border-bottom-width: 1px; border-right-width: 1px; z-index: 2; }
 
   /* ─── PANEL CONTENT WRAPPERS ─── */
-  /* Each panel has a centered content block that grows naturally */
   .panel-content {
     flex: 1;
     display: flex;
@@ -614,23 +607,15 @@
 
   /* ─── MOBILE-ONLY REFINEMENTS ─── */
   @media (max-width: 480px) {
-    /* single column photos on very small screens */
-    .photos-grid {
-      grid-template-columns: 1fr;
-    }
+    .photos-grid { grid-template-columns: 1fr; }
     .photo-card:first-child { height: 200px; }
     .photo-card:not(:first-child) { height: 170px; }
-
-    /* tighten panel corners */
     .panel-corners::before,.panel-corners::after,.panel-corner-bl,.panel-corner-br {
       width: 20px; height: 20px;
     }
-
-    /* message block smaller padding */
     .message-block { padding: 28px 18px 22px; }
   }
 
-  /* Landscape mobile — keep panels scrollable without overflow */
   @media (max-height: 500px) and (orientation: landscape) {
     .panel { min-height: auto; padding-top: 32px; }
     .panel-content { justify-content: flex-start; padding-top: 10px; }
@@ -695,7 +680,6 @@
         </svg>
       </div>
     </div>
-    <!-- Scroll cue in normal flow, pushed to bottom -->
     <div class="scroll-cue">
       <span>Scroll</span>
       <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
@@ -907,7 +891,6 @@ function startMusic() {
     ind.style.display = 'flex';
     ind.classList.remove('paused');
   }).catch(() => {
-    // autoplay blocked — show button for manual start
     const ind = document.getElementById('music-indicator');
     ind.style.display = 'flex';
     ind.classList.add('paused');
@@ -942,6 +925,105 @@ function openInvitation() {
   setTimeout(initScratch, 1400);
   setTimeout(initScrollReveal, 1500);
 }
+
+// ══════════ CONTINUOUS SLOW AUTO-SCROLL (resumes after every manual scroll) ══════════
+(function () {
+  let started      = false;   // first heavy scroll has happened
+  let rafHandle    = null;    // current rAF id
+  let paused       = false;   // user is actively scrolling right now
+  let resumeTimer  = null;    // setTimeout to resume after user stops
+
+  // Speed in px per frame (~36px/s at 60fps). Change to taste.
+  const SPEED        = 2.5;
+  // How long (ms) to wait after the user stops scrolling before resuming
+  const RESUME_DELAY = 1200;
+
+  let touchStartY = 0;
+
+  // ── Step 1: wait for the first intentional downward scroll ──
+  function onWheel(e) {
+    if (started) return;
+    const inv = document.getElementById('invitation');
+    if (!inv || inv.style.display === 'none' || inv.style.display === '') return;
+    if (Math.abs(e.deltaY) > 40) activate();
+  }
+
+  function onTouchStart(e) {
+    touchStartY = e.touches[0].clientY;
+  }
+
+  function onTouchMove(e) {
+    if (started) return;
+    const inv = document.getElementById('invitation');
+    if (!inv || inv.style.display === 'none' || inv.style.display === '') return;
+    if (touchStartY - e.touches[0].clientY > 30) activate();
+  }
+
+  function activate() {
+    started = true;
+
+    // No longer need the "first scroll" detectors
+    window.removeEventListener('wheel',      onWheel,      { passive: true });
+    window.removeEventListener('touchstart', onTouchStart, { passive: true });
+    window.removeEventListener('touchmove',  onTouchMove,  { passive: true });
+
+    // Listen for every future user scroll interaction to pause + schedule resume
+    window.addEventListener('wheel',      onUserScroll, { passive: true });
+    window.addEventListener('touchstart', onUserScroll, { passive: true });
+    window.addEventListener('touchmove',  onUserScroll, { passive: true });
+
+    startScrolling();
+  }
+
+  // ── Called whenever the user manually scrolls (after tour has started) ──
+  function onUserScroll() {
+    paused = true;
+    cancelAnimationFrame(rafHandle);
+    // Restore smooth scroll while user is in control
+    document.documentElement.style.scrollBehavior = '';
+    document.body.style.scrollBehavior = '';
+
+    clearTimeout(resumeTimer);
+    resumeTimer = setTimeout(() => {
+      paused = false;
+      startScrolling();
+    }, RESUME_DELAY);
+  }
+
+  // ── The actual RAF drift loop ──
+  function startScrolling() {
+    cancelAnimationFrame(rafHandle);
+    // Disable CSS smooth-scroll so scrollBy moves exactly SPEED px per frame
+    document.documentElement.style.scrollBehavior = 'auto';
+    document.body.style.scrollBehavior = 'auto';
+    rafHandle = requestAnimationFrame(scrollLoop);
+  }
+
+  function scrollLoop() {
+    if (paused) return;
+
+    const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+
+    // Naturally finished — stop everything
+    if (window.scrollY >= maxScroll - 1) {
+      cancelAnimationFrame(rafHandle);
+      document.documentElement.style.scrollBehavior = '';
+      document.body.style.scrollBehavior = '';
+      window.removeEventListener('wheel',      onUserScroll, { passive: true });
+      window.removeEventListener('touchstart', onUserScroll, { passive: true });
+      window.removeEventListener('touchmove',  onUserScroll, { passive: true });
+      return;
+    }
+
+    window.scrollBy(0, SPEED);
+    rafHandle = requestAnimationFrame(scrollLoop);
+  }
+
+  // Register first-scroll detectors
+  window.addEventListener('wheel',      onWheel,      { passive: true });
+  window.addEventListener('touchstart', onTouchStart, { passive: true });
+  window.addEventListener('touchmove',  onTouchMove,  { passive: true });
+})();
 
 // ══════════ SCRATCH ══════════
 function initScratch() {
@@ -979,7 +1061,6 @@ function initScratch() {
       ctx.beginPath();
       ctx.arc(x, y, size * 0.2, 0, Math.PI * 2);
       ctx.fill();
-      // sample a subset for performance on mobile
       const imageData = ctx.getImageData(0, 0, size, size);
       let transparent = 0;
       for (let p = 3; p < imageData.data.length; p += 16) {
